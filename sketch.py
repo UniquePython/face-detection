@@ -15,7 +15,7 @@ def invert_img(img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
 	return np.invert(img)
 
 
-def gaussian_blur(img: npt.NDArray[np.uint8], blur_strength: float = 0.1) -> npt.NDArray[np.uint8]:
+def gaussian_blur(img: npt.NDArray[np.uint8], blur_strength: float = 0.05) -> npt.NDArray[np.uint8]:
 	height, width = img.shape
 	kernel_width = 2 * int(width * blur_strength) + 1
 	kernel_height = 2 * int(height * blur_strength) + 1
@@ -32,15 +32,15 @@ def color_dodge_blend(img_original: npt.NDArray[np.uint8], img_inverted: npt.NDA
 	return np.clip(result * 255, 0, 255).astype(np.uint8)
 
 
+def generate_sketch_from_array(img: npt.NDArray[np.uint8], blur_strength: float = 0.05) -> npt.NDArray[np.uint8]:
+    inverted = invert_img(img)
+    blurred = gaussian_blur(inverted, blur_strength)
+    return color_dodge_blend(img, blurred)
+
+
 def generate_sketch(img_path: str) -> npt.NDArray[np.uint8]:
 	grayscale = convert_to_grayscale(img_path)
-#	cv2.imwrite("grayscale.jpeg", grayscale)
-	inverted = invert_img(grayscale)
-#	cv2.imwrite("inverted.jpeg", inverted)
-	blurred = gaussian_blur(inverted, 0.0125)
-#	cv2.imwrite("blurred.jpeg", blurred)
-	sketch = color_dodge_blend(grayscale, blurred)
-#	cv2.imwrite("sketch.jpeg", sketch)
+	sketch = generate_sketch_from_array(grayscale)
 	return sketch
 
 
